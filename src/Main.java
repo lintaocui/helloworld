@@ -22,5 +22,14 @@ public class Main {
         System.out.println(dht.get("21"));
         dht.removeNode(nodes.get(0));
         dht.put("1", 1);
+
+        LongestSubword ls = new LongestSubword();
+        String[] words = new String[] {"ap", "apl"};
+        String word = ls.findLongest("appple", new HashSet<>(Arrays.asList(words)));
+
+        WordAbbreviation wa = new WordAbbreviation();
+        String[] inputs = new String[]
+                {"like", "god", "internal", "me", "internet", "interval", "intension", "face", "intrusion"};
+        List<String> was = wa.getAbbreviation(new ArrayList<>(Arrays.asList(inputs)));
     }
 }

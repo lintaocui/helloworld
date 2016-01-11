@@ -6,8 +6,8 @@ import java.util.List;
  */
 
 class Point {
-    int x;
-    int y;
+    final int x;
+    final int y;
     boolean visited;
     boolean pacific;
     boolean atlantic;
@@ -20,12 +20,15 @@ class Point {
 public class FlowOcean {
     int m;
     int n;
-    Point[][] points;
-    List<Point> findPoints(int[][] grid) {
+    final int[][] direct = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    public List<Point> findPoints(int[][] grid) {
         List<Point> ret = new ArrayList<>();
         m = grid.length;
+        if(m == 0) return ret;
         n = grid[0].length;
-        points = new Point[m][n];
+        if(n == 0) return ret;
+        Point[][] points = new Point[m][n];
         for (int i = 0; i < m; i++)
         {
             for(int j = 0; j < n; j++)
@@ -39,7 +42,7 @@ public class FlowOcean {
             for(int j = 0; j < n; j++)
             {
                 if(points[i][j].visited) continue;
-                dfs(grid, i, j);
+                dfs(grid, points, i, j);
                 points[i][j].visited = true;
             }
         }
@@ -55,12 +58,11 @@ public class FlowOcean {
         return ret;
     }
 
-    void dfs(int[][] grid, int i, int j)
+    void dfs(int[][] grid, Point[][] points, int i, int j)
     {
         if(i == 0 || j == 0) points[i][j].pacific = true;
         if(i == m - 1 || j == n - 1) points[i][j].atlantic = true;
 
-        int[][] direct = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         for(int[] di : direct)
         {
             int x = i + di[0];
@@ -70,7 +72,7 @@ public class FlowOcean {
             {
                 if(!points[x][y].visited)
                 {
-                    dfs(grid, x, y);
+                    dfs(grid, points, x, y);
                     points[x][y].visited = true;
                 };
                 points[i][j].pacific = points[i][j].pacific || points[x][y].pacific;

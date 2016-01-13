@@ -93,7 +93,7 @@ public class StockStreaming {
 
         @Override
         public int hashCode() {
-            return this.time * 51 + price;
+            return Objects.hash(time, price);
         }
 
         @Override

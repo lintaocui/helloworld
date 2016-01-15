@@ -71,12 +71,5 @@ public class Main {
         String[] inputs = new String[]
                 {"like", "god", "internal", "me", "internet", "interval", "intension", "face", "intrusion"};
         List<String> was = wa.getAbbreviation(new ArrayList<>(Arrays.asList(inputs)));
-
-        TreeNode root = new TreeNode(0);
-        root.left = new TreeNode(1);
-        root.right = new TreeNode(2);
-        TreeNode lastLeaf = CompleteTree.findLastLeaf(root);
-        root.left.left = new TreeNode(3);
-        lastLeaf = CompleteTree.findLastLeaf(root);
     }
 }

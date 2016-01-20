@@ -13,7 +13,6 @@ import java.util.PriorityQueue;
 public class MyTimer {
     private PriorityQueue<Task> queue = new PriorityQueue<>();
     private TimerThread timerThread = new TimerThread(queue);
-    private boolean stopped = false;
 
     public MyTimer() {
         timerThread.setDaemon(false);
@@ -22,8 +21,11 @@ public class MyTimer {
 
     public void schedule(Task task) {
         synchronized (queue) {
+            if(timerThread.stopped)
+                throw new IllegalStateException("Timer is already cancelled");
             queue.add(task);
-            queue.notifyAll();
+            if (queue.peek() == task)
+                queue.notify();
             System.out.println("schedule task: " + task.name + " to run at " + task.scheduledTime);
         }
     }
@@ -31,14 +33,15 @@ public class MyTimer {
     public void stop() {
         synchronized (queue)
         {
-            queue.notifyAll();
-            stopped = true;
+            timerThread.stopped = true;
+            queue.clear();
+            queue.notify();
         }
     }
 
     public static class Task implements Runnable, Comparable<Task> {
-        private LocalTime scheduledTime;
-        private String name;
+        LocalTime scheduledTime;
+        String name;
 
         public Task(long delayInSeconds, String name) {
             scheduledTime = LocalTime.now().plusSeconds(delayInSeconds);
@@ -60,6 +63,8 @@ public class MyTimer {
 
         private PriorityQueue<Task> queue;
 
+        volatile boolean stopped = false;
+
         TimerThread(PriorityQueue<Task> queue) {
             this.queue = queue;
         }
@@ -70,43 +75,33 @@ public class MyTimer {
             Task task;
             System.out.println("Timer started.");
             while(!stopped) {
-                synchronized (queue) {
-                    while(queue.isEmpty() && !stopped) {
-                        try {
+                try{
+                    synchronized (queue) {
+                        while(queue.isEmpty() && !stopped) {
                             queue.wait();
                             System.out.println("Timer wake up at " + LocalTime.now());
-                        } catch (InterruptedException e) {
-                            System.out.println("Thread is interrupted");
                         }
-                    }
 
-                    if(stopped) break;
+                        if(stopped) break;
 
-                    int delay = queue.peek().scheduledTime.getSecond() - LocalTime.now().getSecond();
-                    if(delay <= 0) {
-                       task = queue.poll();
-                    }
-                    else {
-                        task = null;
-
-                        try {
+                        int delay = queue.peek().scheduledTime.getSecond() - LocalTime.now().getSecond();
+                        if(delay <= 0) {
+                            task = queue.poll();
+                        }
+                        else {
+                            task = null;
                             queue.wait(delay * 1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
                         }
                     }
+
+                    if(task == null) continue;
+
+                    task.run();
+                } catch (InterruptedException e) {
                 }
-
-                if(task == null) continue;
-
-                task.run();
             }
 
             System.out.println("Timer exited!");
         }
     }
 }
-
-
-
-

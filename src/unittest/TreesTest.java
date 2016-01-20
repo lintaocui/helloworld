@@ -1,6 +1,7 @@
-package gg;
+package unittest;
 
 import common.TreeNode;
+import gg.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

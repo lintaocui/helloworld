@@ -1,7 +1,7 @@
 package gg;
 
-import java.time.LocalTime;
-import java.util.Comparator;
+import java.time.*;
+import java.util.Date;
 import java.util.PriorityQueue;
 
 /**
@@ -26,7 +26,7 @@ public class MyTimer {
             queue.add(task);
             if (queue.peek() == task)
                 queue.notify();
-            System.out.println("schedule task: " + task.name + " to run at " + task.scheduledTime);
+            System.out.println("schedule task: " + task.name + " to run at " + new Date(task.scheduledTime));
         }
     }
 
@@ -40,22 +40,22 @@ public class MyTimer {
     }
 
     public static class Task implements Runnable, Comparable<Task> {
-        LocalTime scheduledTime;
+        long scheduledTime;
         String name;
 
         public Task(long delayInSeconds, String name) {
-            scheduledTime = LocalTime.now().plusSeconds(delayInSeconds);
+            scheduledTime = System.currentTimeMillis() + delayInSeconds * 1000;
             this.name = name;
         }
 
         @Override
         public void run() {
-            System.out.println("Task " + name + " is scheduled at" + LocalTime.now());
+            System.out.println("Task " + name + " is running at" + new Date(scheduledTime));
         }
 
         @Override
         public int compareTo(Task o) {
-            return this.scheduledTime.compareTo(o.scheduledTime);
+            return Long.compare(this.scheduledTime, o.scheduledTime);
         }
     }
 
@@ -79,18 +79,18 @@ public class MyTimer {
                     synchronized (queue) {
                         while(queue.isEmpty() && !stopped) {
                             queue.wait();
-                            System.out.println("Timer wake up at " + LocalTime.now());
+                            System.out.println("Timer wake up at " + new Date());
                         }
 
                         if(stopped) break;
 
-                        int delay = queue.peek().scheduledTime.getSecond() - LocalTime.now().getSecond();
+                        long delay = queue.peek().scheduledTime - System.currentTimeMillis();
                         if(delay <= 0) {
                             task = queue.poll();
                         }
                         else {
                             task = null;
-                            queue.wait(delay * 1000);
+                            queue.wait(delay);
                         }
                     }
 

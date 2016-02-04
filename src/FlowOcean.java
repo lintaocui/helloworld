@@ -74,7 +74,7 @@ public class FlowOcean {
                 {
                     dfs(grid, points, x, y);
                     points[x][y].visited = true;
-                };
+                }
                 points[i][j].pacific = points[i][j].pacific || points[x][y].pacific;
                 points[i][j].atlantic = points[i][j].atlantic || points[x][y].atlantic;
             }

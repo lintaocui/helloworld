@@ -1,0 +1,9 @@
+Alice,,5
+Bob,Alice,3
+Carol,Bob,2
+Richard,Carol,5
+Kim,Richard,5
+Tom,Carol,5
+David,Bob,3
+Eve,Alice,2
+Ferris,Eve,1

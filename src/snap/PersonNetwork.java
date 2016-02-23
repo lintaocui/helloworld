@@ -22,10 +22,22 @@ public class PersonNetwork  {
         Scanner scanner = null;
         try {
              scanner = new Scanner(new File(filePath));
+             List<String[]> lines = new ArrayList<>();
              while(scanner.hasNextLine()) {
-                 String[] strs = scanner.nextLine().split(",\\s*");
-
+                lines.add(scanner.nextLine().split(",\\s*"));
              }
+            scanner.close();
+
+            // Initialize the graph
+            for (String[] strs : lines) {
+                map.put(strs[0], new Person(Integer.parseInt(strs[1]), strs[0]));
+            }
+            // add friend
+            for (String[] strs : lines) {
+                for(int i = 2; i < strs.length; i++) {
+                    map.get(strs[0]).addFriend(map.get(strs[i]));
+                }
+            }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -37,21 +49,40 @@ public class PersonNetwork  {
 
     }
 
+    // bfs print friend
     public void printFriendsGraph(String name) {
+        if(!map.containsKey(name)) {
+            return;
+        }
 
+        Set<String> visited = new HashSet<>();
+        Deque<Person> queue = new ArrayDeque<>();
+        queue.add(map.get(name));
+        visited.add(name);
+        while(!queue.isEmpty()) {
+            Person person = queue.poll();
+            System.out.print(person.getName() + " ");
+            for (Person friend : person.getFriendList()) {
+                if(visited.contains(friend.getName())){
+                    continue;
+                }
+
+                queue.add(friend);
+                visited.add(friend.getName());
+            }
+        }
     }
 }
-
 
 class Person {
     private final int id;
     private final String name;
     private final List<Person> friendList;
 
-    public Person(int id, String name, List<Person> friendList) {
+    public Person(int id, String name) {
         this.id = id;
         this.name = name;
-        this.friendList = friendList;
+        this.friendList = new ArrayList<>();
     }
 
     public int getId() {
